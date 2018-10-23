@@ -5,15 +5,11 @@ using UnityEngine;
 public class Highlighter : MonoBehaviour {
 
     [SerializeField] Color highlightColor = Color.yellow;
-
-    Color baseColor;
-    Renderer renderer;
     Renderer[] childRenderers;
     Queue<Color> childColors;
 
 	// Use this for initialization
 	void Start () {
-        renderer = GetComponent<Renderer>();
         childRenderers = GetComponentsInChildren<Renderer>();
 	}
 	
@@ -25,6 +21,7 @@ public class Highlighter : MonoBehaviour {
     private void OnMouseEnter()
     {
         Highlight();
+        //print("Highlight");
     }
 
     private void OnMouseExit()
@@ -34,12 +31,7 @@ public class Highlighter : MonoBehaviour {
 
     public void Highlight()
     {
-        if (renderer != null)
-        {
-            baseColor = renderer.material.color;
-            renderer.material.color = highlightColor;
-        }
-        else if (childRenderers != null)
+        if (childRenderers != null)
         {
             childColors = new Queue<Color>();
             foreach (Renderer r in childRenderers)
@@ -53,11 +45,7 @@ public class Highlighter : MonoBehaviour {
     }
     private void RemoveHighlight()
     {
-        if (renderer != null)
-        {
-            renderer.material.color = baseColor;
-        }
-        else if (childRenderers != null)
+        if (childRenderers != null)
         {
             foreach (Renderer r in childRenderers)
             {
@@ -68,15 +56,16 @@ public class Highlighter : MonoBehaviour {
         SendMessage("StopHighlightAnimation");
     }
 
-    //Allows other scripts to send a message indicating the base color has changed
-    private void UpdateBaseColor(Color color)
-    {
-        baseColor = color;
-    }
-
     //Allows other scripts to send a message indicating the base colors of the children has changed
     private void UpdateBaseColorQueue(Queue<Color> colors)
     {
+        //print("Colors Updated");
         childColors = colors;
     }
+
+    //DEPRECIATED Allows other scripts to send a message indicating the base color has changed
+    //private void UpdateBaseColor(Color color)
+    //{
+    //    baseColor = color;
+    //}
 }

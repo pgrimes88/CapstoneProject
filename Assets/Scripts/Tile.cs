@@ -3,39 +3,51 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteInEditMode]
+[SelectionBase]
 public class Tile : MonoBehaviour {
 
-    public enum TileColors { standard, move, attack }
+    public enum TileColor { standard, move, attack, ally }
+    public enum TileType { normal, asteroid, debris}
 
     private const int gridSize = 10;
 
     private Vector2Int gridPos;
 
+    [SerializeField] Unit unitOnTile;
+    [SerializeField] TileType type;
+
+
     [Header("Material Colors")]
     [SerializeField] Color baseColor;
     [SerializeField] Color moveRangeColor;
     [SerializeField] Color attackRangeColor;
+    [SerializeField] Color enemyColor;
+    [SerializeField] Color allyColor;
 
+    //[Header("Tile Type Prefabs")]
+    //[SerializeField] GameObject normalTilePrefab;
+    //[SerializeField] GameObject asteroidTilePrefab;
+    //[SerializeField] GameObject debrisTilePrefab;
 
-    //TODO Possibly remove this. Tile may not need to care if unit is there and GameManager can handle that
-    private Character characterOnTile;
 
     Renderer[] childrenRenderers;
 
-    bool visted = false;
+    //MOVED TO MAP
+    ////TODO Move this to the search itself
+    //bool visted = false;
 
-    public bool Visted
-    {
-        get
-        {
-            return visted;
-        }
+    //public bool Visted
+    //{
+    //    get
+    //    {
+    //        return visted;
+    //    }
 
-        set
-        {
-            visted = value;
-        }
-    }
+    //    set
+    //    {
+    //        visted = value;
+    //    }
+    //}
 
     public static int GridSize
     {
@@ -45,9 +57,36 @@ public class Tile : MonoBehaviour {
         }
     }
 
+    public Unit UnitOnTile
+    {
+        get
+        {
+            return unitOnTile;
+        }
+
+        set
+        {
+            unitOnTile = value;
+        }
+    }
+
+    public TileType Type
+    {
+        get
+        {
+            return type;
+        }
+
+        set
+        {
+            type = value;
+        }
+    }
+
     //TODO Clean up coordianate systems
     private void Awake()
     {
+        UnitOnTile = null;
         gridPos = GetGridPos();
     }
 
@@ -60,6 +99,8 @@ public class Tile : MonoBehaviour {
 	void Update () {
 
     }
+
+    //GRID FUNCTIONS
 
     //Returns Position within the grid (0,0) (3,2) etc
     public Vector2Int GetGridPos()
@@ -80,6 +121,42 @@ public class Tile : MonoBehaviour {
         );
     }
 
+    //TODO Convert to SendMessageUpwards
+    void OnMouseDown(){
+        BattleManager.instance.TileClicked(this);
+	}
+
+
+
+    public void ResetTileColor()
+    {
+        SetColor(baseColor);
+    }
+
+
+    //COLOR FUNCTIONS
+    public void SetTileColor(TileColor color)
+    {
+        switch (color)
+        {
+            case TileColor.standard:
+                SetColor(baseColor);
+                break;
+            case TileColor.move:
+                SetColor(moveRangeColor);
+                break;
+            case TileColor.attack:
+                SetColor(attackRangeColor);
+                break;
+            case TileColor.ally:
+                SetColor(allyColor);
+                break;
+            default:
+                SetColor(baseColor);
+                break;
+        }
+    }
+
     public void SetColor(Color color)
     {
         Queue<Color> colors = new Queue<Color>();
@@ -91,52 +168,8 @@ public class Tile : MonoBehaviour {
         SendMessage("UpdateBaseColorQueue", colors);
     }
 
-    //DEPRECIATED Use SetTileColor instead
-    //Update all faces material
-    //public void UpdateMaterial(Material material)
-    //{
-    //    foreach (Renderer renderer in childrenRenderers)
-    //    {
-    //        renderer.material = material;
-    //    }
-    //}
 
-    void OnMouseDown(){
-        GameManager.instance.TileClicked(this);
-	}
-
-    //DEPRECIATED Use ResetTileColor Instead
-    //public void ResetTileMaterial()
-    //{
-    //    UpdateMaterial(BaseMaterial);
-    //}
-
-    public void ResetTileColor()
-    {
-        SetColor(baseColor);
-    }
-
-
-
-    public void SetTileColor(TileColors color)
-    {
-        switch (color)
-        {
-            case TileColors.standard:
-                SetColor(baseColor);
-                break;
-            case TileColors.move:
-                SetColor(moveRangeColor);
-                break;
-            case TileColors.attack:
-                SetColor(attackRangeColor);
-                break;
-            default:
-                SetColor(baseColor);
-                break;
-        }
-    }
-
+    //HIGHLIGHT FUNCTIONS
     private void StartHighlightAnimation()
     {
 
@@ -146,4 +179,21 @@ public class Tile : MonoBehaviour {
     {
 
     }
+
+    //DEPRECIATED
+    //public void ResetTileSearchFields()
+    //{
+    //    visted = false;
+    //    exploredFrom = null;
+    //}
+
+    //DEPRECIATED Use SetTileColor instead
+    //Update all faces material
+    //public void UpdateMaterial(Material material)
+    //{
+    //    foreach (Renderer renderer in childrenRenderers)
+    //    {
+    //        renderer.material = material;
+    //    }
+    //}
 }
